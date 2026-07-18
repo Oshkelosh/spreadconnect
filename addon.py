@@ -28,15 +28,18 @@ class SpreadconnectConfig(BaseModel):
 
 
 def _map_address(address: Dict[str, Any]) -> Dict[str, Any]:
+    from app.addons.suppliers.address import canonical_address
+
+    addr = canonical_address(address)
     return {
-        "firstName": address.get("first_name", ""),
-        "lastName": address.get("last_name", ""),
-        "street": address.get("line1", ""),
-        "city": address.get("city", ""),
-        "zipCode": address.get("zip", ""),
-        "country": address.get("country", ""),
-        "email": address.get("email", ""),
-        "phone": address.get("phone", ""),
+        "firstName": addr["first_name"],
+        "lastName": addr["last_name"],
+        "street": addr["line1"],
+        "city": addr["city"],
+        "zipCode": addr["zip"],
+        "country": addr["country_code"],
+        "email": addr["email"],
+        "phone": addr["phone"],
     }
 
 
@@ -152,8 +155,10 @@ class SpreadconnectAddon(SupplierAddon):
         *,
         external_id: str | None = None,
         supplier_ref: str | None = None,
+        shipping_method: str | None = None,
+        currency: str | None = None,
     ) -> Dict[str, Any]:
-        del supplier_ref
+        del supplier_ref, shipping_method, currency
         client = self._require_client()
         cfg = self._config or {}
         try:
